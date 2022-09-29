@@ -1,3 +1,5 @@
+//https://github.com/menafrancisco/Send-Masive-Notification-with-Slack.git
+
 var POST_MESSAGE_ENDPOINT = "https://slack.com/api/chat.postMessage";
 
 // This code adds a menu item to the Google Sheet that you can use to send your message
@@ -15,6 +17,7 @@ function postLoop () {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DATA");
   var rangeValues = sheet.getDataRange().getValues();
   var initcell = rangeValues[1][1]-1;
+  var token = rangeValues[2][1];
   let body;
 
   const lastColumn = sheet.getLastColumn();
@@ -59,8 +62,9 @@ function postLoop () {
     var message = body;
 
     if(row[0] =='yes'){
-      var answer = postToSlack(channel, message);
-      //console.log(answer);
+      var answer = postToSlack(channel, message, token);
+      console.log(answer.getResponseCode());
+      console.log(answer.getContentText());
 
       //Update status on EMAILS sheet
       let rw = r + initcell+1;
@@ -103,7 +107,7 @@ function cleanstatus(sh, data, initcell) {
 
 // This is the code that sends your message to Slack, it is called by the above function postLoop()
 
-function postToSlack(channel, message) {
+function postToSlack(channel, message, token) {
   var payload = {
     'channel' : channel,
     'as_user' : true,
@@ -123,7 +127,7 @@ return UrlFetchApp.fetch(
     method             : 'post',
     contentType        : 'application/json',
     headers            : {
-      Authorization : 'Bearer ' + 'xoxp-334096034164-2238478453956-3378383769973-8557f74d7c4049c0c7c5641250c5c0db'
+      Authorization : 'Bearer ' + token
     },
     payload            : JSON.stringify(payload),
     muteHttpExceptions : true,
